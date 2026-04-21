@@ -128,7 +128,7 @@ livenessProbe:
   httpGet:
     path: /
     port: 5000
-readinessProbe:
+readinessprobe:
   httpGet:
     path: /
     port: 5000
