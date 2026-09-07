@@ -39,7 +39,7 @@ podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-   fsGroup: 1000
+  fsGroup: 1000
 
 securityContext: {}
   allowPrivilegeEscalation: false
