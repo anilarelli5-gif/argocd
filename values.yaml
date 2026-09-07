@@ -43,6 +43,7 @@ podSecurityContext:
 
 securityContext: 
   allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
   capabilities:
@@ -54,6 +55,13 @@ securityContext:
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+
+volumes:
+  - name: tmp
+    emptyDir: {}
 container:
   port: 5000
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
