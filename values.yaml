@@ -33,7 +33,16 @@ serviceAccount:
 
 # This is for setting Kubernetes Annotations to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
+#podAnnotations: {}
+
+podAnnotations:
+  vault.hashicorp.com/agent-inject: "true"
+  vault.hashicorp.com/role: "myapp-production"
+  vault.hashicorp.com/agent-inject-secret-secret-token: "secret/data/myapp"
+  vault.hashicorp.com/agent-inject-template-secret-token: |
+    {{- with secret "secret/data/myapp" -}}
+    {{ .Data.data.secret_token }}
+    {{- end }}
 # This is for setting Kubernetes Labels to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
