@@ -1,19 +1,12 @@
 apiVersion: policies.kyverno.io/v1
 kind: ValidatingPolicy
 metadata:
-  annotations:
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"policies.kyverno.io/v1","kind":"ValidatingPolicy","metadata":{"annotations":{},"name":"restrict-registries"},"spec":{"matchConstraints":{"resourceRules":[{"apiGroups":[""],"apiVersions":["v1"],"operations":["CREATE","UPDATE"],"resources":["pods"]}]},"validationActions":["Deny"],"validations":[{"expression":"(object.spec.containers + object.spec.?initContainers.orValue([]) + object.spec.?ephemeralContainers.orValue([])).all(\n  container,\n  container.image.startsWith('docker.io/') ||\n  container.image.startsWith('registry.k8s.io/')\n)\n","message":"Images must come from docker.io or registry.k8s.io."}]}}
-  creationTimestamp: "2026-11-19T15:02:07Z"
-  generation: 1
   name: restrict-registries
-  resourceVersion: "350471"
-  uid: 37d7be48-12bf-4d88-b156-308512d56bb9
 spec:
   matchConstraints:
     resourceRules:
     - apiGroups:
-      - ""
+      - ''
       apiVersions:
       - v1
       operations:
@@ -24,112 +17,7 @@ spec:
   validationActions:
   - Deny
   validations:
-  - expression: |
-      (object.spec.containers + object.spec.?initContainers.orValue([]) + object.spec.?ephemeralContainers.orValue([])).all(
-        container,
-        container.image.startsWith('docker.io/') ||
-        container.image.startsWith('registry.k8s.io/')
-      )
+  - expression: "(object.spec.containers + object.spec.?initContainers.orValue([])\
+      \ + object.spec.?ephemeralContainers.orValue([])).all(\n  container,\n  container.image.startsWith('docker.io/')\
+      \ ||\n  container.image.startsWith('registry.k8s.io/')\n)\n"
     message: Images must come from docker.io or registry.k8s.io.
-status:
-  autogen:
-    configs:
-      cronjobs:
-        spec:
-          matchConstraints:
-            resourceRules:
-            - apiGroups:
-              - batch
-              apiVersions:
-              - v1
-              operations:
-              - CREATE
-              - UPDATE
-              resources:
-              - cronjobs
-          validationActions:
-          - Deny
-          validations:
-          - expression: |
-              (object.spec.jobTemplate.spec.template.spec.containers + object.spec.jobTemplate.spec.template.spec.?initContainers.orValue([]) + object.spec.jobTemplate.spec.template.spec.?ephemeralContainers.orValue([])).all(
-                container,
-                container.image.startsWith('docker.io/') ||
-                container.image.startsWith('registry.k8s.io/')
-              )
-            message: Images must come from docker.io or registry.k8s.io.
-        targets:
-        - group: batch
-          kind: CronJob
-          resource: cronjobs
-          version: v1
-      defaults:
-        spec:
-          matchConstraints:
-            resourceRules:
-            - apiGroups:
-              - apps
-              apiVersions:
-              - v1
-              operations:
-              - CREATE
-              - UPDATE
-              resources:
-              - daemonsets
-              - deployments
-              - replicasets
-              - statefulsets
-            - apiGroups:
-              - batch
-              apiVersions:
-              - v1
-              operations:
-              - CREATE
-              - UPDATE
-              resources:
-              - jobs
-          validationActions:
-          - Deny
-          validations:
-          - expression: |
-              (object.spec.template.spec.containers + object.spec.template.spec.?initContainers.orValue([]) + object.spec.template.spec.?ephemeralContainers.orValue([])).all(
-                container,
-                container.image.startsWith('docker.io/') ||
-                container.image.startsWith('registry.k8s.io/')
-              )
-            message: Images must come from docker.io or registry.k8s.io.
-        targets:
-        - group: apps
-          kind: DaemonSet
-          resource: daemonsets
-          version: v1
-        - group: apps
-          kind: Deployment
-          resource: deployments
-          version: v1
-        - group: apps
-          kind: ReplicaSet
-          resource: replicasets
-          version: v1
-        - group: apps
-          kind: StatefulSet
-          resource: statefulsets
-          version: v1
-        - group: batch
-          kind: Job
-          resource: jobs
-          version: v1
-  conditionStatus:
-    conditions:
-    - lastTransitionTime: "2026-11-19T15:02:07Z"
-      message: Webhook configured.
-      reason: Succeeded
-      status: "True"
-      type: WebhookConfigured
-    - lastTransitionTime: "2026-11-19T15:02:07Z"
-      message: Policy is ready for reporting.
-      reason: Succeeded
-      status: "True"
-      type: RBACPermissionsGranted
-    message: 'skip generating ValidatingAdmissionPolicy: not enabled.'
-    ready: true
-  generated: false
