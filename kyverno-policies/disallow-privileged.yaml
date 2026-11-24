@@ -21,3 +21,9 @@ spec:
       \  container,\n  container.?securityContext.?privileged.orValue(false) == false\n\
       )\n"
     message: Privileged containers are not allowed.
+  - expression: |
+      object.spec.containers.all(
+        container,
+        container.?securityContext.?allowPrivilegeEscalation.orValue(false) == false
+      )
+    message: "Privilege escalation must be disabled."
