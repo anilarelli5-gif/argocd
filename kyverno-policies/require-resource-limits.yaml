@@ -4,6 +4,12 @@ metadata:
   name: require-resource-limits
 spec:
   matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values:
+        - gatekeeper-system
     resourceRules:
     - apiGroups:
       - ''

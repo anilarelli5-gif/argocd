@@ -4,6 +4,12 @@ metadata:
   name: restrict-registries
 spec:
   matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values:
+        - gatekeeper-system
     resourceRules:
     - apiGroups:
       - ''
