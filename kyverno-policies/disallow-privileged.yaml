@@ -1,0 +1,132 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policies.kyverno.io/v1","kind":"ValidatingPolicy","metadata":{"annotations":{},"name":"disallow-privileged"},"spec":{"matchConstraints":{"resourceRules":[{"apiGroups":[""],"apiVersions":["v1"],"operations":["CREATE","UPDATE"],"resources":["pods"]}]},"validationActions":["Deny"],"validations":[{"expression":"(object.spec.containers + object.spec.?initContainers.orValue([])).all(\n  container,\n  container.?securityContext.?privileged.orValue(false) == false\n)\n","message":"Privileged containers are not allowed."}]}}
+  creationTimestamp: "2026-11-16T14:23:40Z"
+  generation: 1
+  name: disallow-privileged
+  resourceVersion: "314580"
+  uid: 24e83335-357e-402d-a6a5-0b119f0a176e
+spec:
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pods
+  validationActions:
+  - Deny
+  validations:
+  - expression: |
+      (object.spec.containers + object.spec.?initContainers.orValue([])).all(
+        container,
+        container.?securityContext.?privileged.orValue(false) == false
+      )
+    message: Privileged containers are not allowed.
+status:
+  autogen:
+    configs:
+      cronjobs:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - cronjobs
+          validationActions:
+          - Deny
+          validations:
+          - expression: |
+              (object.spec.jobTemplate.spec.template.spec.containers + object.spec.jobTemplate.spec.template.spec.?initContainers.orValue([])).all(
+                container,
+                container.?securityContext.?privileged.orValue(false) == false
+              )
+            message: Privileged containers are not allowed.
+        targets:
+        - group: batch
+          kind: CronJob
+          resource: cronjobs
+          version: v1
+      defaults:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - apps
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - daemonsets
+              - deployments
+              - replicasets
+              - statefulsets
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - jobs
+          validationActions:
+          - Deny
+          validations:
+          - expression: |
+              (object.spec.template.spec.containers + object.spec.template.spec.?initContainers.orValue([])).all(
+                container,
+                container.?securityContext.?privileged.orValue(false) == false
+              )
+            message: Privileged containers are not allowed.
+        targets:
+        - group: apps
+          kind: DaemonSet
+          resource: daemonsets
+          version: v1
+        - group: apps
+          kind: Deployment
+          resource: deployments
+          version: v1
+        - group: apps
+          kind: ReplicaSet
+          resource: replicasets
+          version: v1
+        - group: apps
+          kind: StatefulSet
+          resource: statefulsets
+          version: v1
+        - group: batch
+          kind: Job
+          resource: jobs
+          version: v1
+  conditionStatus:
+    conditions:
+    - lastTransitionTime: "2026-11-16T14:23:40Z"
+      message: Webhook configured.
+      reason: Succeeded
+      status: "True"
+      type: WebhookConfigured
+    - lastTransitionTime: "2026-11-16T14:23:40Z"
+      message: Policy is ready for reporting.
+      reason: Succeeded
+      status: "True"
+      type: RBACPermissionsGranted
+    message: 'skip generating ValidatingAdmissionPolicy: not enabled.'
+    ready: true
+  generated: false

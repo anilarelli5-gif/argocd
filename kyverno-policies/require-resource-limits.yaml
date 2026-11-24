@@ -1,0 +1,141 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policies.kyverno.io/v1","kind":"ValidatingPolicy","metadata":{"annotations":{},"name":"require-resource-limits"},"spec":{"matchConstraints":{"resourceRules":[{"apiGroups":[""],"apiVersions":["v1"],"operations":["CREATE","UPDATE"],"resources":["pods"]}]},"validationActions":["Deny"],"validations":[{"expression":"object.spec.containers.all(\n  container,\n  has(container.resources) \u0026\u0026\n  has(container.resources.limits) \u0026\u0026\n  has(container.resources.limits.cpu) \u0026\u0026\n  has(container.resources.limits.memory)\n)\n","message":"Every container must define CPU and memory limits."}]}}
+  creationTimestamp: "2026-11-19T14:17:40Z"
+  generation: 1
+  name: require-resource-limits
+  resourceVersion: "341503"
+  uid: d584c74e-338f-4601-9b73-e8ceaa970097
+spec:
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pods
+  validationActions:
+  - Deny
+  validations:
+  - expression: |
+      object.spec.containers.all(
+        container,
+        has(container.resources) &&
+        has(container.resources.limits) &&
+        has(container.resources.limits.cpu) &&
+        has(container.resources.limits.memory)
+      )
+    message: Every container must define CPU and memory limits.
+status:
+  autogen:
+    configs:
+      cronjobs:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - cronjobs
+          validationActions:
+          - Deny
+          validations:
+          - expression: |
+              object.spec.jobTemplate.spec.template.spec.containers.all(
+                container,
+                has(container.resources) &&
+                has(container.resources.limits) &&
+                has(container.resources.limits.cpu) &&
+                has(container.resources.limits.memory)
+              )
+            message: Every container must define CPU and memory limits.
+        targets:
+        - group: batch
+          kind: CronJob
+          resource: cronjobs
+          version: v1
+      defaults:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - apps
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - daemonsets
+              - deployments
+              - replicasets
+              - statefulsets
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - jobs
+          validationActions:
+          - Deny
+          validations:
+          - expression: |
+              object.spec.template.spec.containers.all(
+                container,
+                has(container.resources) &&
+                has(container.resources.limits) &&
+                has(container.resources.limits.cpu) &&
+                has(container.resources.limits.memory)
+              )
+            message: Every container must define CPU and memory limits.
+        targets:
+        - group: apps
+          kind: DaemonSet
+          resource: daemonsets
+          version: v1
+        - group: apps
+          kind: Deployment
+          resource: deployments
+          version: v1
+        - group: apps
+          kind: ReplicaSet
+          resource: replicasets
+          version: v1
+        - group: apps
+          kind: StatefulSet
+          resource: statefulsets
+          version: v1
+        - group: batch
+          kind: Job
+          resource: jobs
+          version: v1
+  conditionStatus:
+    conditions:
+    - lastTransitionTime: "2026-11-19T14:17:40Z"
+      message: Webhook configured.
+      reason: Succeeded
+      status: "True"
+      type: WebhookConfigured
+    - lastTransitionTime: "2026-11-19T14:17:40Z"
+      message: Policy is ready for reporting.
+      reason: Succeeded
+      status: "True"
+      type: RBACPermissionsGranted
+    message: 'skip generating ValidatingAdmissionPolicy: not enabled.'
+    ready: true
+  generated: false

@@ -1,0 +1,138 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policies.kyverno.io/v1","kind":"ValidatingPolicy","metadata":{"annotations":{},"name":"require-nonroot"},"spec":{"matchConstraints":{"resourceRules":[{"apiGroups":[""],"apiVersions":["v1"],"operations":["CREATE","UPDATE"],"resources":["pods"]}]},"validationActions":["Deny"],"validations":[{"expression":"(object.spec.containers + object.spec.?initContainers.orValue([]) + object.spec.?ephemeralContainers.orValue([])).all(\n  container,\n  container.?securityContext.?runAsNonRoot.orValue(\n    object.spec.?securityContext.?runAsNonRoot.orValue(false)\n  ) == true\n)\n","message":"Containers must run as non-root."}]}}
+  creationTimestamp: "2026-11-18T14:37:18Z"
+  generation: 1
+  name: require-nonroot
+  resourceVersion: "327217"
+  uid: f01b1e81-05fe-4d21-bcea-caa07288bcfc
+spec:
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pods
+  validationActions:
+  - Deny
+  validations:
+  - expression: |
+      (object.spec.containers + object.spec.?initContainers.orValue([]) + object.spec.?ephemeralContainers.orValue([])).all(
+        container,
+        container.?securityContext.?runAsNonRoot.orValue(
+          object.spec.?securityContext.?runAsNonRoot.orValue(false)
+        ) == true
+      )
+    message: Containers must run as non-root.
+status:
+  autogen:
+    configs:
+      cronjobs:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - cronjobs
+          validationActions:
+          - Deny
+          validations:
+          - expression: |
+              (object.spec.jobTemplate.spec.template.spec.containers + object.spec.jobTemplate.spec.template.spec.?initContainers.orValue([]) + object.spec.jobTemplate.spec.template.spec.?ephemeralContainers.orValue([])).all(
+                container,
+                container.?securityContext.?runAsNonRoot.orValue(
+                  object.spec.jobTemplate.spec.template.spec.?securityContext.?runAsNonRoot.orValue(false)
+                ) == true
+              )
+            message: Containers must run as non-root.
+        targets:
+        - group: batch
+          kind: CronJob
+          resource: cronjobs
+          version: v1
+      defaults:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - apps
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - daemonsets
+              - deployments
+              - replicasets
+              - statefulsets
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - jobs
+          validationActions:
+          - Deny
+          validations:
+          - expression: |
+              (object.spec.template.spec.containers + object.spec.template.spec.?initContainers.orValue([]) + object.spec.template.spec.?ephemeralContainers.orValue([])).all(
+                container,
+                container.?securityContext.?runAsNonRoot.orValue(
+                  object.spec.template.spec.?securityContext.?runAsNonRoot.orValue(false)
+                ) == true
+              )
+            message: Containers must run as non-root.
+        targets:
+        - group: apps
+          kind: DaemonSet
+          resource: daemonsets
+          version: v1
+        - group: apps
+          kind: Deployment
+          resource: deployments
+          version: v1
+        - group: apps
+          kind: ReplicaSet
+          resource: replicasets
+          version: v1
+        - group: apps
+          kind: StatefulSet
+          resource: statefulsets
+          version: v1
+        - group: batch
+          kind: Job
+          resource: jobs
+          version: v1
+  conditionStatus:
+    conditions:
+    - lastTransitionTime: "2026-11-18T14:37:18Z"
+      message: Webhook configured.
+      reason: Succeeded
+      status: "True"
+      type: WebhookConfigured
+    - lastTransitionTime: "2026-11-18T14:37:18Z"
+      message: Policy is ready for reporting.
+      reason: Succeeded
+      status: "True"
+      type: RBACPermissionsGranted
+    message: 'skip generating ValidatingAdmissionPolicy: not enabled.'
+    ready: true
+  generated: false

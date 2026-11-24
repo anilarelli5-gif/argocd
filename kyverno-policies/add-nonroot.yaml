@@ -1,0 +1,137 @@
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policies.kyverno.io/v1","kind":"MutatingPolicy","metadata":{"annotations":{},"name":"add-nonroot"},"spec":{"matchConstraints":{"resourceRules":[{"apiGroups":[""],"apiVersions":["v1"],"operations":["CREATE"],"resources":["pods"]}]},"mutations":[{"applyConfiguration":{"expression":"Object{\n  spec: Object.spec{\n    securityContext: Object.spec.securityContext{\n      runAsNonRoot: true,\n      runAsUser: 101\n    }\n  }\n}\n"},"patchType":"ApplyConfiguration"}]}}
+  creationTimestamp: "2026-11-18T15:18:19Z"
+  generation: 1
+  name: add-nonroot
+  resourceVersion: "335141"
+  uid: 8837a550-7de1-432b-9d9d-f1f2c94722ac
+spec:
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      resources:
+      - pods
+  mutations:
+  - applyConfiguration:
+      expression: |
+        Object{
+          spec: Object.spec{
+            securityContext: Object.spec.securityContext{
+              runAsNonRoot: true,
+              runAsUser: 101
+            }
+          }
+        }
+    patchType: ApplyConfiguration
+status:
+  autogen:
+    configs:
+      cronjobs:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              resources:
+              - cronjobs
+          mutations:
+          - applyConfiguration:
+              expression: |-
+                Object{spec: Object.spec{jobTemplate: Object.spec.jobTemplate{spec: Object.spec.jobTemplate.spec{template: Object.spec.jobTemplate.spec.template{
+                  spec: Object.spec.jobTemplate.spec.template.spec{
+                    securityContext: Object.spec.jobTemplate.spec.template.spec.securityContext{
+                      runAsNonRoot: true,
+                      runAsUser: 101
+                    }
+                  }
+                }}}}}
+            patchType: ApplyConfiguration
+        targets:
+        - group: batch
+          kind: CronJob
+          resource: cronjobs
+          version: v1
+      defaults:
+        spec:
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - apps
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              resources:
+              - daemonsets
+              - deployments
+              - replicasets
+              - statefulsets
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              resources:
+              - jobs
+          mutations:
+          - applyConfiguration:
+              expression: |-
+                Object{spec: Object.spec{template: Object.spec.template{
+                  spec: Object.spec.template.spec{
+                    securityContext: Object.spec.template.spec.securityContext{
+                      runAsNonRoot: true,
+                      runAsUser: 101
+                    }
+                  }
+                }}}
+            patchType: ApplyConfiguration
+        targets:
+        - group: apps
+          kind: DaemonSet
+          resource: daemonsets
+          version: v1
+        - group: apps
+          kind: Deployment
+          resource: deployments
+          version: v1
+        - group: apps
+          kind: ReplicaSet
+          resource: replicasets
+          version: v1
+        - group: apps
+          kind: StatefulSet
+          resource: statefulsets
+          version: v1
+        - group: batch
+          kind: Job
+          resource: jobs
+          version: v1
+  conditionStatus:
+    conditions:
+    - lastTransitionTime: "2026-11-18T15:18:19Z"
+      message: Webhook configured.
+      reason: Succeeded
+      status: "True"
+      type: WebhookConfigured
+    - lastTransitionTime: "2026-11-18T15:18:19Z"
+      message: Policy is ready for reporting.
+      reason: Succeeded
+      status: "True"
+      type: RBACPermissionsGranted
+    message: ""
+    ready: true
+  generated: false

@@ -1,0 +1,185 @@
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policies.kyverno.io/v1","kind":"ImageValidatingPolicy","metadata":{"annotations":{},"name":"verify-signed-images"},"spec":{"attestors":[{"cosign":{"key":{"data":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECO90iMiA3v/06ijEJunzt9rdmIsV\nKkgh03V+03du7pTseNDo1aZN1jqfMAIp82w9+AaRFwFWS108MQfvHkW/hw==\n-----END PUBLIC KEY-----\n"}},"name":"cosign"}],"matchConstraints":{"resourceRules":[{"apiGroups":[""],"apiVersions":["v1"],"operations":["CREATE","UPDATE"],"resources":["pods"]}]},"matchImageReferences":[{"glob":"docker.io/anilarelli/my-app*"}],"validationActions":["Deny"],"validations":[{"expression":"images.containers.map(\n  image,\n  verifyImageSignatures(image, [attestors.cosign])\n).all(result, result \u003e 0)\n","message":"Container images must have a valid Cosign signature from the trusted key."}],"webhookConfiguration":{"timeoutSeconds":15}}}
+  creationTimestamp: "2026-11-23T14:33:54Z"
+  generation: 1
+  name: verify-signed-images
+  resourceVersion: "366565"
+  uid: b7fa8251-968c-4869-ac1f-504dfc0d0b5a
+spec:
+  attestors:
+  - cosign:
+      key:
+        data: |
+          -----BEGIN PUBLIC KEY-----
+          MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECO90iMiA3v/06ijEJunzt9rdmIsV
+          Kkgh03V+03du7pTseNDo1aZN1jqfMAIp82w9+AaRFwFWS108MQfvHkW/hw==
+          -----END PUBLIC KEY-----
+    name: cosign
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pods
+  matchImageReferences:
+  - glob: docker.io/anilarelli/my-app*
+  validationActions:
+  - Deny
+  validationConfigurations:
+    mutateDigest: true
+    required: true
+    verifyDigest: true
+  validations:
+  - expression: |
+      images.containers.map(
+        image,
+        verifyImageSignatures(image, [attestors.cosign])
+      ).all(result, result > 0)
+    message: Container images must have a valid Cosign signature from the trusted
+      key.
+  webhookConfiguration:
+    timeoutSeconds: 15
+status:
+  autogen:
+    configs:
+      cronjobs:
+        spec:
+          attestors:
+          - cosign:
+              key:
+                data: |
+                  -----BEGIN PUBLIC KEY-----
+                  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECO90iMiA3v/06ijEJunzt9rdmIsV
+                  Kkgh03V+03du7pTseNDo1aZN1jqfMAIp82w9+AaRFwFWS108MQfvHkW/hw==
+                  -----END PUBLIC KEY-----
+            name: cosign
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - cronjobs
+          matchImageReferences:
+          - glob: docker.io/anilarelli/my-app*
+          validationActions:
+          - Deny
+          validationConfigurations:
+            mutateDigest: true
+            required: true
+            verifyDigest: true
+          validations:
+          - expression: |
+              images.containers.map(
+                image,
+                verifyImageSignatures(image, [attestors.cosign])
+              ).all(result, result > 0)
+            message: Container images must have a valid Cosign signature from the
+              trusted key.
+          webhookConfiguration:
+            timeoutSeconds: 15
+        targets:
+        - group: batch
+          kind: CronJob
+          resource: cronjobs
+          version: v1
+      defaults:
+        spec:
+          attestors:
+          - cosign:
+              key:
+                data: |
+                  -----BEGIN PUBLIC KEY-----
+                  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECO90iMiA3v/06ijEJunzt9rdmIsV
+                  Kkgh03V+03du7pTseNDo1aZN1jqfMAIp82w9+AaRFwFWS108MQfvHkW/hw==
+                  -----END PUBLIC KEY-----
+            name: cosign
+          matchConstraints:
+            resourceRules:
+            - apiGroups:
+              - apps
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - daemonsets
+              - deployments
+              - replicasets
+              - statefulsets
+            - apiGroups:
+              - batch
+              apiVersions:
+              - v1
+              operations:
+              - CREATE
+              - UPDATE
+              resources:
+              - jobs
+          matchImageReferences:
+          - glob: docker.io/anilarelli/my-app*
+          validationActions:
+          - Deny
+          validationConfigurations:
+            mutateDigest: true
+            required: true
+            verifyDigest: true
+          validations:
+          - expression: |
+              images.containers.map(
+                image,
+                verifyImageSignatures(image, [attestors.cosign])
+              ).all(result, result > 0)
+            message: Container images must have a valid Cosign signature from the
+              trusted key.
+          webhookConfiguration:
+            timeoutSeconds: 15
+        targets:
+        - group: apps
+          kind: DaemonSet
+          resource: daemonsets
+          version: v1
+        - group: apps
+          kind: Deployment
+          resource: deployments
+          version: v1
+        - group: apps
+          kind: ReplicaSet
+          resource: replicasets
+          version: v1
+        - group: apps
+          kind: StatefulSet
+          resource: statefulsets
+          version: v1
+        - group: batch
+          kind: Job
+          resource: jobs
+          version: v1
+  conditionStatus:
+    conditions:
+    - lastTransitionTime: "2026-11-23T14:33:54Z"
+      message: Webhook configured.
+      reason: Succeeded
+      status: "True"
+      type: WebhookConfigured
+    - lastTransitionTime: "2026-11-23T14:33:54Z"
+      message: Policy is ready for reporting.
+      reason: Succeeded
+      status: "True"
+      type: RBACPermissionsGranted
+    message: ""
+    ready: true
