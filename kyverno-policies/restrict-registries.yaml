@@ -11,6 +11,7 @@ spec:
         values:
         - gatekeeper-system
         - dev
+        - gatekeeper-exempt
     resourceRules:
     - apiGroups:
       - ''
